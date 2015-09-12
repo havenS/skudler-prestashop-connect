@@ -204,6 +204,7 @@ class Skudlerconnect extends Module
 				'products' 	=> $this->getFormattedProducts($params['cookie']->id_cart)
 			);
 
+			@$this->api->deleteSubscription(Configuration::get('SKUDLER_CART_UPDATE_EVENT'), $formattedUser);
 			@$this->api->addSubscription(Configuration::get('SKUDLER_NEW_ORDER_EVENT'), $formattedUser);
 
 		}
@@ -236,13 +237,15 @@ class Skudlerconnect extends Module
 		$cart		= new CartCore($cartId);
 		$products 	= $cart->getProducts();
 
+		$currencyId = (int)Configuration::get('PS_CURRENCY_DEFAULT');
+
 		foreach($products as $product){
 			$formattedProducts[] = array(
 				'name' 			=> $product['name'],
-				'description' 	=> $product['description_short'],
+				'description' 	=> strip_tags($product['description_short']),
 				'thumbnail' 	=> 'http://'.$link->getImageLink($product['link_rewrite'], $product['id_image'], 'home_default'),
 				'quantity' 		=> $product['quantity'],
-				'price' 		=> $product['price_wt'],
+				'price' 		=> Tools::displayPrice($product['price_wt'], $currencyId),
 			);
 		}
 
